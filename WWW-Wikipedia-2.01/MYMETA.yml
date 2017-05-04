@@ -1,0 +1,29 @@
+---
+abstract: 'Automated interface to the Wikipedia '
+author:
+  - 'Ed Summers <ehs@pobox.com>'
+build_requires:
+  ExtUtils::MakeMaker: '6.59'
+  Test::More: '0'
+configure_requires:
+  ExtUtils::MakeMaker: '0'
+dynamic_config: 0
+generated_by: 'Module::Install version 1.06, CPAN::Meta::Converter version 2.142690'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: WWW-Wikipedia
+no_index:
+  directory:
+    - inc
+    - t
+requires:
+  LWP::UserAgent: '0'
+  Text::Autoformat: '0'
+  URI: '0'
+  perl: '5.006'
+resources:
+  license: http://dev.perl.org/licenses/
+  repository: http://github.com/edsu/www-wikipedia
+version: '2.01'

@@ -1,0 +1,82 @@
+Question: What is Kale
+Correct Answer: Kale or leaf cabbage refers to certain vegetable cultivars of the plant species Brassica oleracea. A kale plant has green or purple leaves and the central leaves do not form a head.
+System Answer: kales are considered to be closer to wild cabbage than most domesticated forms of brassica oleracea
+
+Question: Where is Kansas
+Correct Answer: Kansas is bordered by Nebraska on the north; Missouri on the east; Oklahoma on the south; and Colorado on the west.
+System Answer: located in the midwestern united states
+
+Question: Where is Canada
+Correct Answer: Canada is located in the continent of North America
+System Answer: canada first being established by the french in 1535 during jacques cartier second voyage to new
+france
+
+Question: What is Perl
+Correct Answer: Perl is a scripting language
+System Answer: perl 5 gained widespread popularity in the late 1990s as a cgi scripting language
+
+Question: What is the moon
+Correct Answer: The Moon is an astronomical body that orbits planet Earth
+System Answer: moon formed from the debris left over after a giant impact between earth and a mars
+
+Question: Who is Harvey Dent
+Correct Answer:Harvey Dent was Gotham City's amiable and courteous district attorney and one of Batman's strongest allies until Sal "Boss" Maroni threw acid in his face, hideously scarring him. It also fractured his mental state, causing him to become Two-Face, a schizoid criminal mastermind obsessed with duality and the number two.
+System Answer: harvey dent was hideously scarred on the left side of his face after a mob boss threw acidic chemicals at
+him during a court trial
+
+Question: What is love
+Correct Answer: Love is a variety of different feelings, states, and attitudes that ranges from interpersonal affection to pleasure.
+System Answer: love can also be a virtue representing human kindness
+
+Question: What is art
+Correct Answer: the expression or application of human creative skill and imagination, typically in a visual form such as painting or sculpture, producing works to be appreciated primarily for their beauty or emotional power.
+System Answer: arts are separated and distinguished from acquired skills in general
+
+Question: What is Science
+Correct Answer: the intellectual and practical activity encompassing the systematic study of the structure and behavior of the physical and natural world through observation and experiment.
+System Answer: science as a type of knowledge was more closely linked to philosophy than it is now
+
+Question: What is fiction
+Correct Answer: literature in the form of prose, especially short stories and novels, that describes imaginary events and people.
+System Answer: fictional work may even be openly set in their own context entirely separate from the known
+universe
+----------------------------------=WRONG=--------------------------------------
+Question: When was George Washington born
+Correct Answer: George Washington was born on February 22, 1732.
+System Answer: was born into the provincial gentry of colonial virginia to a family of wealthy planters who owned tobacco plantations and slaves
+
+Question: Who is George Bush
+Correct Answer: George Bush is an American politician who served as the 43rd President of the United States from 2001 to 2009.
+System Answer: George Bush
+
+Question: Where is the white house
+Correct Answer: The white house is located on 1600 Pennsylvania Ave NW, Washington, DC 20500
+System Answer: The white house complex includes the executive residence
+
+Question: Where is the moon
+Correct Answer: The average distance of the Moon from the Earth is 384,400 km
+System Answer: moon formed from the debris left over after a giant impact between earth and a mars
+
+Question: What is a cat
+Correct Answer: a small domesticated carnivorous mammal with soft fur, a short snout, and retractile claws.
+System Answer: cats makes some otherwise suitable locations unsuitable for attempted species reintroduction
+
+Question: Where is Kalamazoo
+Correct Answer: Kalamazoo is the major city of the Kalamazoo-Portage Metropolitan Statistical Area, which has a population of 335,340 as of 2015.
+System Answer: kalamazoo county michigan incorporated and unincorporated areas kalamazoo highlighted
+
+Question: What is a continent
+Correct Answer: a mainland contrasted with islands.
+System Answer: continental crust include regions covered with water
+
+Question: When was the Civil War
+Correct Answer: The Civil War took place between April 12, 1861 – May 9, 1865
+System Answer: civil wars for a longer list of specific conflicts
+
+Question: What is a cake
+Correct Answer: an item of soft, sweet food made from a mixture of flour, shortening, eggs, sugar, and other ingredients, baked and often decorated.
+System Answer: cakes now cover a wide range of preparations that can be simple or elaborate
+
+Question: When is Christmas
+Correct Answer: Christmas takes place on December 25th
+System Answer: was born in bethlehem
