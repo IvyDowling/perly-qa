@@ -20,10 +20,14 @@
 #		based on a confidence score you compute."
 ## QUERY:
 #	1. POS Tagging with WordNet.
-#	2. All-Length-Grams by moving backwards through the 'good' input tokens.
+#	2. I use capitalization to detect nouns more accurately
+#	3. All-Length-Grams by moving backwards through the 'good' input tokens.
 ## COMPOSITION:
 #	1. Adjective synonyms using WordNet Similarity.
-#	2.
+#	2. All-grams, like above for searching the docs
+#	3. Removed many bad tokens like http and infobox
+#	4. Implemented 1 step tiling for better answers by
+#		using two phrase that start with the same token
 ## CONFIDENCE:
 #	DOCUMENTS
 #		1. Whole trimmed input--------Primary-----0.9
@@ -33,6 +37,7 @@
 #		1. Rearranged Orginal String--Primary-----0.9
 #		2. Grams----------------------Secondary---0.7
 #		3. Generated Values-----------Other-------0.4
+# These terms are then multiplied and the best set is taken and reduced into an answer
 use WWW::Wikipedia;
 use WordNet::QueryData;
 use Data::Dumper;
@@ -44,7 +49,7 @@ my %stop_words = ("the" => 1, "a" => 1, "an" => 1, "did" => 1,
 "into" => 1, "their" => 1, "is" => 1,
 "that" => 1, "they" => 1, "for" => 1,
 "to" => 1, "it" => 1, "them" => 1, "was" => 1, "which" => 1,
-"who" => 1,"what" => 1,"when" => 1,"where" => 1);
+"who" => 1,"what" => 1,"when" => 1,"where" => 1, "are" => 1);
 
 my $wn = WordNet::QueryData->new( noload => 1);
 
@@ -89,6 +94,21 @@ while(<STDIN>){
 					push (@adj, $lt);
 				} elsif($compress=~/$lt#n/){
 					push (@nouns, $lt);
+				}
+				# IMPROVEMENT 2, CAPITAL DETECTION ++
+				# Lets push all capitalized tokens into the
+				# nouns field if not already present
+				if(ucfirst($t) eq $t){
+					if (!grep( /^$lt$/, @nouns ) ) {
+						push (@nouns, $lt);
+					}
+					# also, if we accidentally put it into @adj
+					# -- im looking at you george bush-- pull it out
+					for (my $i = 0; $i < scalar @adj; $i++) {
+						if ($adj[$i] eq $lt){
+							splice @adj, $i, 1;
+						}
+					}
 				}
 			}
 		}
@@ -167,8 +187,12 @@ while(<STDIN>){
 		if(0){
 		print $log "RETURN -> " . $P_Document . "\n";
 		print $log $S_Document . "\n";
-		print $log $O_Document . "\n";
+		print $log $O_Documents . "\n";
 		}
+		#REDUCE
+		#REDUCE
+		#REDUCE
+		#REDUCE
 		# Lets replace newlines with spaces
 		$P_Document =~ s/\n/ /g;
 		$S_Document =~ s/\n/ /g;
@@ -178,9 +202,9 @@ while(<STDIN>){
 		$S_Document =~ s/<ref.+?\/ref>//g;
 		$O_Documents =~ s/<ref.+?\/ref>//g;
 		# Replace strange characters with  " "
-		$P_Document =~ s/[^a-zA-Z\d\s\$\.\?\!\'\,]/ /g;
-		$S_Document =~ s/[^a-zA-Z\d\s\$\.\?\!\'\,]/ /g;
-		$O_Documents =~ s/[^a-zA-Z\d\s\$\.\?\!\'\,]/ /g;
+		$P_Document =~ s/[^a-z^A-Z^\d^\s^\$^\.^\?^\!^\'^\,]/ /g;
+		$S_Document =~ s/[^a-z^A-Z^\d^\s^\$^\.^\?^\!^\'^\,]/ /g;
+		$O_Documents =~ s/[^a-z^A-Z^\d^\s^\$^\.^\?^\!^\'^\,]/ /g;
 		# Make all multi " " into one \s
 		$P_Document =~ s/[\s]+/ /g;
 		$S_Document =~ s/[\s]+/ /g;
@@ -189,10 +213,10 @@ while(<STDIN>){
 		$S_Document = lc $S_Document;
 		$O_Documents = lc $O_Documents;
 		# LOG #
-		if(0){
+		if(1){
 		print $log "MASSAGED RETURN -> " . $P_Document . "\n";
 		print $log $S_Document . "\n";
-		print $log $O_Document . "\n";
+		print $log $O_Documents . "\n";
 		}
 		# END LOG #
 		## CONFIDENCE: (refresher)
@@ -264,7 +288,7 @@ while(<STDIN>){
 				}
 			}
 		}
-		if ($q_word eq "where"){
+		if (lc $q_word eq "where"){
 			push @generated, "located";
 			my @sim_adj = $wn->querySense("located#a#1", "sim");
 			for my $gen (@sim_adj){
@@ -274,13 +298,29 @@ while(<STDIN>){
 			for my $gen (@syn_adj){
 				push @generated, $gen =~ /([\w]+)#a#\d/g;
 			}
-		} elsif ($q_word eq "when"){
+		} elsif (lc $q_word eq "when"){
 			# here I'd like to do some sort of wn
 			# check to decide which of these terms to use, but...
-			push @keyword_terms, "started";
-			push @keyword_terms, "ended";
-			push @keyword_terms, "was born";
-			push @keyword_terms, "died";
+			push @generated, "year";
+			push @generated, "century";
+			push @generated, "month";
+			push @generated, "day";
+			# january february march april may june
+			# july august september october november december
+			push @generated, "january";
+			push @generated, "february";
+			push @generated, "march";
+			push @generated, "april";
+			push @generated, "may";
+			push @generated, "june";
+			push @generated, "july";
+			push @generated, "september";
+			push @generated, "october";
+			push @generated, "november";
+			push @generated, "december";
+			# regex patterns
+			my $dts = qr/\d\d\d\d/;
+			push @generated, $dts;
 		}
 		# LOG #
 		print $log "SEARCH TERMS -> " . $s_original . "\n";
@@ -341,23 +381,23 @@ while(<STDIN>){
 				}
 			}
 		}
-		if ($O_Document){
+		if ($O_Documents){
 			my $doc_w = 0.2;
 			my $srch_w = 0.9;
-			my @ret1 = ($O_Document =~ /.([\w\s\d]*$s_original[\w\s\d]*)\./g);
+			my @ret1 = ($O_Documents =~ /.([\w\s\d]*$s_original[\w\s\d]*)\./g);
 			if (@ret1){
 				push @dec_list, [($doc_w * $srch_w), @ret1];
 			}
 			for my $g (@s_grams){
 				$srch_w = 0.7;
-				my @ret2 = ($O_Document =~ /.([\w\s\d]*$g[\w\s\d]*)\./g);
+				my @ret2 = ($O_Documents =~ /.([\w\s\d]*$g[\w\s\d]*)\./g);
 				if (@ret2){
 					push @dec_list, [($doc_w * $srch_w), @ret2];
 				}
 			}
 			for my $g (@generated){
 				$srch_w = 0.4;
-				my @ret3 = ($O_Document =~ /.([\w\s\d]*$g[\w\s\d]*)\./g);
+				my @ret3 = ($O_Documents =~ /.([\w\s\d]*$g[\w\s\d]*)\./g);
 				if (@ret3){
 					push @dec_list, [($doc_w * $srch_w), @ret3];
 				}
@@ -370,14 +410,151 @@ while(<STDIN>){
 		my $metric = ${$dec_list[0]}[0];
 		for my $c (@dec_list){
 			my @cast = @{$c};
-			if($cast[0] eq $metric){
-				shift @cast;
-				push @final_subset, @cast;
+			if(@cast && $metric){
+				if($cast[0] eq $metric){
+					shift @cast;
+					push @final_subset, @cast;
+				}
 			}
 		}
-		# Last metric is frequency of words in each line
-		# from our values from the search terms
+		# make this a set
+		my %set_hash   = map { $_ => 1 } @final_subset;
+		@final_subset = keys %set_hash;
+		# Stupid infobox and hyperlinks
+		for (my $i = 0; $i < scalar @final_subset; $i++) {
+			if($final_subset[$i]=~/infobox/){
+				splice @final_subset, $i, 1;
+			}
+
+		}
+		for (my $i = 0; $i < scalar @final_subset; $i++) {
+			if($final_subset[$i]=~/http/){
+				splice @final_subset, $i, 1;
+			}
+		}
+		for (my $i = 0; $i < scalar @final_subset; $i++) {
+			if($final_subset[$i]=~/isbn/){
+				splice @final_subset, $i, 1;
+			}
+		}
+		for (my $i = 0; $i < scalar @final_subset; $i++) {
+			if(length $final_subset[$i] < 30){
+				splice @final_subset, $i, 1;
+			}
+		}
+		## LOG
 		print $log Dumper \@final_subset;
-		print Dumper \@final_subset;
+		# now lets do some rudimentary tiling, using
+		# the index as a weight and a phrase length to stop tiling
+		my $final_output = "";
+		# find the first one with a noun, then tile this with the next few.
+		for my $til (@final_subset){
+			chomp $til;
+			$til =~ s/^\s+|\s+$//g;
+			my @wrd_splt = ($til=~/([^\s]+)[\s]*/g);
+			for my $ns (@nouns){
+				chomp $ns;
+				$ns =~ s/^\s+|\s+$//g;
+				if ($wrd_splt[0] eq $ns){
+					$final_output = $til;
+					last;
+				}
+			}
+			if ($final_output ne ""){
+				last;
+			}
+		}
+		# we suck at nouns, lets try pronouns
+		if ($final_output eq ""){
+			my @prons = ["he", "she", "it", "they"];
+			for my $til (@final_subset){
+				chomp $til;
+				$til =~ s/^\s+|\s+$//g;
+				my @wrd_splt = ($til=~/([^\s]+)[\s]*/g);
+				for my $prns (@prons){
+					if ($wrd_splt[0] eq $prns){
+						$final_output = substr $til, 0, 0;
+						last;
+					}
+				}
+				if ($final_output ne ""){
+					last;
+				}
+			}
+		}
+		# lastly, give up, try tokens
+		if ($final_output eq ""){
+			for my $til (@final_subset){
+				chomp $til;
+				$til =~ s/^\s+|\s+$//g;
+				my @wrd_splt = ($til=~/([^\s]+)[\s]*/g);
+				for my $sbj (@subj){
+					chomp $sbj;
+					$sbj =~ s/^\s+|\s+$//g;
+					if ($wrd_splt[0] eq $sbj){
+						$final_output = substr $til, 0, 0;
+						last;
+					}
+				}
+				if ($final_output ne ""){
+					last;
+				}
+			}
+		}
+		if ($final_output ne ""){
+			# find the value we caught
+			my $tiler = ($final_output=~/([^\s]+)[\s]*/g)[0];
+			for my $til (@final_subset){
+				chomp $til;
+				$til =~ s/^\s+|\s+$//g;
+				my @wrd_splt = ($til=~/([^\s]+)[\s]*/g);
+				if ($wrd_splt[0] eq $tiler){
+					# let's make sure we're not grabbing the same phrase twice
+					if($til ne $final_output){
+						# add in that sentence helper
+						$final_output .= ", and";
+						shift @wrd_splt;
+						for my $add (@wrd_splt){
+							$final_output .= " " . $add;
+						}
+						last;
+					}
+				}
+			}
+			#
+			#	PRINT OUT
+			#
+			#print Dumper \@final_subset;
+			print $log $final_output;
+			print "$final_output\n";
+		} else {
+			if (@final_subset){
+				# this happens a lot when we dont have enough phrases
+				my $out = "";
+				my @gotta_catch_em_all = ["they","it","he","she"];
+				push @gotta_catch_em_all, @nouns;
+				for my $last_hope (@final_subset){
+					for my $mon (@gotta_catch_em_all){
+						if($last_hope=~/\s$mon\s/){
+							$out = $last_hope;
+							last
+						}
+					}
+					if (length $last_hope > length $out && length $last_hope < 90){
+						$out = $last_hope;
+					}
+				}
+				if ($out eq "") {
+					print $log "Sorry, I couldn't find the answer you were looking for.\n";
+					print "Sorry, I couldn't find the answer you were looking for.\n";
+				} else {
+					print $log "$out\n";
+					print "$out\n";
+				}
+			} else {
+				print $log "Sorry, I couldn't find the answer you were looking for.\n";
+				print "Sorry, I couldn't find the answer you were looking for.\n";
+			}
+		}
 	}
 }
