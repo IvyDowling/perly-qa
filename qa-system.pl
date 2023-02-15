@@ -53,7 +53,7 @@ my %stop_words = ("the" => 1, "a" => 1, "an" => 1, "did" => 1,
 
 my $wn = WordNet::QueryData->new( noload => 1);
 
-print "Hi there, this is version 2 of the Q/A system by Michael Dowling!\n";
+print "Hi there, this is version 2 of the Q/A system by I V Y!\n";
 print "I'll try and answer any questions you have that start with\nWho, What, When, or Where. Enter 'exit' to leave the program.\n";
 my $wiki = WWW::Wikipedia->new();
 my ($logfilename) = @ARGV;
